@@ -1,9 +1,11 @@
 import type {
 	IExecuteFunctions,
+	ILoadOptionsFunctions,
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
 	IDataObject,
+	INodePropertyOptions,
 } from 'n8n-workflow';
 import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 
@@ -128,6 +130,43 @@ export class Gapli implements INodeType {
 		],
 	};
 
+	methods = {
+		loadOptions: {
+			async getWholesalers(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				const returnData: INodePropertyOptions[] = [];
+				try {
+					const response = await gapliApiRequest.call(this, 'GET', '/wholesalers', {}, { active: 'true' });
+					const wholesalers = (response.wholesalers as IDataObject[]) || [];
+
+					// Add "All Wholesalers" option at the top
+					returnData.push({
+						name: '— All Wholesalers —',
+						value: 0,
+						description: 'Search across all available wholesaler catalogs',
+					});
+
+					for (const w of wholesalers) {
+						const parserId = w.parser_id as number;
+						if (parserId) {
+							returnData.push({
+								name: w.name as string,
+								value: parserId,
+								description: `Parser ID: ${parserId}`,
+							});
+						}
+					}
+				} catch {
+					// Fallback — allow manual entry if API fails
+					returnData.push({
+						name: '— All Wholesalers —',
+						value: 0,
+					});
+				}
+				return returnData;
+			},
+		},
+	};
+
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
 		const returnData: INodeExecutionData[] = [];
@@ -187,14 +226,41 @@ export class Gapli implements INodeType {
 							qs.exclude_already_listed_on_accounts = filters.exclude_already_listed_on_accounts;
 
 						if (returnAll) {
-							responseData = await gapliApiRequestAllItems.call(
-								this,
-								'GET',
-								'/products',
-								'products',
-								{},
-								qs,
-							);
+							// Check if Full Database Scan is enabled
+							const scanAll = this.getNodeParameter('scanAll', i, false) as boolean;
+
+							if (scanAll) {
+								// Single request — backend collects everything server-side
+								qs.scan_all = 'true';
+								qs.limit = 50000;
+								const response = await gapliApiRequest.call(
+									this,
+									'GET',
+									'/products',
+									{},
+									qs,
+								);
+								const products = (response.products as IDataObject[]) || [];
+								const meta = response._meta as IDataObject | undefined;
+
+								// Attach _meta to each product so downstream nodes can inspect scan info
+								if (meta) {
+									for (const product of products) {
+										product._meta = meta;
+									}
+								}
+								responseData = products;
+							} else {
+								// Standard pagination — iterate pages
+								responseData = await gapliApiRequestAllItems.call(
+									this,
+									'GET',
+									'/products',
+									'products',
+									{},
+									qs,
+								);
+							}
 						} else {
 							const limit = this.getNodeParameter('limit', i) as number;
 							qs.limit = limit;

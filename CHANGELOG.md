@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] - 2026-04-25
+
+### Added
+
+- **Product Get Many — Full Database Scan Mode** — new toggle "Full Database Scan" (visible when Return All is enabled):
+  - Bypasses standard pagination limits — fetches **every** matching product across all parser partitions
+  - Backend iterates per-parser with internal batch pagination (2000 products/batch), collecting up to **50,000** products
+  - Each product includes `_meta` object with scan statistics:
+    - `total_before_filters` — total products in database (unfiltered)
+    - `total_after_filters` — how many matched the filters
+    - `returned_count` — how many were actually returned
+    - `truncated` — `true` if the safety cap was reached
+    - `parsers_scanned` — number of wholesaler partitions scanned
+    - `parser_ids` — list of scanned parser IDs
+  - Use case: Allegro offer selection workflows that need to scan the complete catalog with filters
+- **Improved Pagination** — page size increased from 100 → 500 for fewer API calls during "Return All"
+- **Safety Cap** — max 100 pages (50,000 items) pagination safety to prevent infinite loops
+- **Increased Limit** — per-request product limit raised from 200 → 1,000
+- **Wholesaler Dropdown with Search** — `Parser ID` filter replaced with a searchable dropdown that loads active wholesalers dynamically from the API. Users can now select by name instead of typing a numeric ID.
+
+---
+
 ## [0.3.0] - 2026-04-24
 
 ### Added

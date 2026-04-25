@@ -62,12 +62,28 @@ export const productFields: INodeProperties[] = [
 		description: 'Whether to return all results or only up to a given limit',
 	},
 	{
+		displayName: 'Full Database Scan',
+		name: 'scanAll',
+		type: 'boolean',
+		default: false,
+		displayOptions: {
+			show: {
+				resource: ['product'],
+				operation: ['getAll'],
+				returnAll: [true],
+			},
+		},
+		// eslint-disable-next-line n8n-nodes-base/node-param-description-boolean-without-whether
+		description:
+			'Scan all parser partitions to fetch every matching product in a single request. Use for Allegro offer selection workflows that need the complete catalog. Without this, results are limited to standard pagination. The response includes _meta with total_before_filters, total_after_filters, and truncated flag.',
+	},
+	{
 		displayName: 'Limit',
 		name: 'limit',
 		type: 'number',
 		typeOptions: {
 			minValue: 1,
-			maxValue: 500,
+			maxValue: 1000,
 		},
 		default: 50,
 		displayOptions: {
@@ -147,13 +163,6 @@ export const productFields: INodeProperties[] = [
 				description: 'Only return products with stock quantity ≥ this value (e.g. 5 to skip low-stock items)',
 			},
 			{
-				displayName: 'Parser ID',
-				name: 'parser_id',
-				type: 'number',
-				default: 0,
-				description: 'Filter by wholesaler/parser ID',
-			},
-			{
 				displayName: 'Search',
 				name: 'search',
 				type: 'string',
@@ -167,6 +176,17 @@ export const productFields: INodeProperties[] = [
 				default: '',
 				description: 'Filter by SKU (partial match)',
 			},
+			{
+				displayName: 'Wholesaler Name or ID',
+				name: 'parser_id',
+				type: 'options',
+				typeOptions: {
+					loadOptionsMethod: 'getWholesalers',
+				},
+				default: 0,
+				description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+			},
 		],
 	},
 ];
+

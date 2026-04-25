@@ -140,6 +140,7 @@ export async function gapliApiRequest(
  * Make an authenticated request to the GAPLI API and return all items
  * using pagination (offset-based).
  * Includes inter-page delay to avoid hitting rate limits during bulk fetches.
+ * Safety: max 100 pages (50,000 items at 500/page) to prevent infinite loops.
  */
 export async function gapliApiRequestAllItems(
 	this: IExecuteFunctions | IPollFunctions,
@@ -151,11 +152,13 @@ export async function gapliApiRequestAllItems(
 ): Promise<IDataObject[]> {
 	const returnData: IDataObject[] = [];
 	let offset = 0;
-	const limit = 100;
+	const limit = 500;
+	const MAX_PAGES = 100;
 
 	let hasMore = true;
+	let page = 0;
 
-	while (hasMore) {
+	while (hasMore && page < MAX_PAGES) {
 		qs.limit = limit;
 		qs.offset = offset;
 
@@ -169,7 +172,8 @@ export async function gapliApiRequestAllItems(
 		}
 		returnData.push(...items);
 
-		offset += limit;
+		offset += items.length;
+		page++;
 
 		const pagination = responseData.pagination as IDataObject | undefined;
 		if (!pagination || !(pagination.has_more as boolean)) {
@@ -183,3 +187,4 @@ export async function gapliApiRequestAllItems(
 
 	return returnData;
 }
+
