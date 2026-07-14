@@ -1,0 +1,59 @@
+{
+	"name": "n8n-nodes-gapli",
+	"version": "1.2.3",
+	"description": "n8n community node for GAPLI — Automated Dropshipping Platform. Manage products, orders, wholesalers, and marketplace accounts directly from your n8n workflows.",
+	"license": "MIT",
+	"homepage": "https://gapli.com",
+	"keywords": [
+		"n8n-community-node-package",
+		"n8n",
+		"dropshipping",
+		"ecommerce",
+		"gapli",
+		"allegro",
+		"marketplace",
+		"automation"
+	],
+	"author": {
+		"name": "GAPLI Global LTD",
+		"email": "support@gapli.com",
+		"url": "https://gapli.com"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Gapli-Full-Dropshipping/n8n-nodes-gapli.git"
+	},
+	"scripts": {
+		"build": "n8n-node build",
+		"build:watch": "tsc --watch",
+		"dev": "n8n-node dev",
+		"lint": "n8n-node lint",
+		"lint:fix": "n8n-node lint --fix",
+		"release": "n8n-node release",
+		"prepublishOnly": "npm run build"
+	},
+	"files": [
+		"dist"
+	],
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"strict": true,
+		"credentials": [
+			"dist/credentials/GapliApi.credentials.js"
+		],
+		"nodes": [
+			"dist/nodes/Gapli/Gapli.node.js",
+			"dist/nodes/Gapli/GapliTrigger.node.js"
+		]
+	},
+	"devDependencies": {
+		"@n8n/node-cli": "*",
+		"eslint": "9.39.4",
+		"prettier": "3.8.1",
+		"release-it": "19.2.4",
+		"typescript": "5.9.3"
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	}
+}
