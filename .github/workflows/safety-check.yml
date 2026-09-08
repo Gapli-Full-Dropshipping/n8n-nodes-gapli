@@ -1,0 +1,79 @@
+name: Safety Check — No Monorepo Leak
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  safety-check:
+    runs-on: ubuntu-latest
+    name: Verify no monorepo files leaked
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for monorepo files
+        run: |
+          echo "🔍 Checking for accidentally pushed monorepo files..."
+          
+          FORBIDDEN=(
+            "src/lib/db.ts"
+            "src/app/layout.tsx"
+            "Dockerfile"
+            "docker-compose.prod.yml"
+            "middleware.ts"
+            "src/plugins"
+            "src/components"
+            ".env"
+            ".env.example"
+            "Makefile"
+            "VERSION"
+            "AGENTS.md"
+          )
+          
+          LEAKED=false
+          for f in "${FORBIDDEN[@]}"; do
+            if [ -e "$f" ]; then
+              echo "❌ LEAKED FILE DETECTED: $f"
+              LEAKED=true
+            fi
+          done
+          
+          # Check total file count (n8n node should have <100 files)
+          FILE_COUNT=$(find . -not -path './.git/*' -type f | wc -l)
+          echo "📊 Total files: $FILE_COUNT"
+          
+          if [ "$FILE_COUNT" -gt 100 ]; then
+            echo "❌ TOO MANY FILES ($FILE_COUNT) — possible monorepo leak!"
+            LEAKED=true
+          fi
+          
+          if [ "$LEAKED" = true ]; then
+            echo ""
+            echo "🚨 CRITICAL: Monorepo files detected in public n8n-nodes-gapli repo!"
+            echo "   This means the private gapli-dashboard code has been pushed here."
+            echo "   IMMEDIATELY make this repo private and force-push clean code."
+            echo ""
+            echo "   Use: cd integrations/n8n-nodes-gapli && ./scripts/sync-to-github.sh"
+            exit 1
+          fi
+          
+          echo "✅ Safety check passed — only n8n node files present"
+
+      - name: Verify package.json is n8n node
+        run: |
+          PACKAGE_NAME=$(node -e "console.log(require('./package.json').name)")
+          if [ "$PACKAGE_NAME" != "n8n-nodes-gapli" ]; then
+            echo "❌ Wrong package name: $PACKAGE_NAME (expected: n8n-nodes-gapli)"
+            exit 1
+          fi
+          
+          # Check n8n node structure
+          HAS_NODES=$(node -e "const p = require('./package.json'); console.log(p.n8n && p.n8n.nodes ? 'yes' : 'no')")
+          if [ "$HAS_NODES" != "yes" ]; then
+            echo "❌ package.json missing n8n.nodes configuration"
+            exit 1
+          fi
+          
+          echo "✅ Valid n8n community node package"
