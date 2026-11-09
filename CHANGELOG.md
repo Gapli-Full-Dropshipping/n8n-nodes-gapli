@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.9.1] - 2026-11-09
+
+### Fixed
+
+- **The package no longer describes GAPLI as working with PrestaShop or Magento.** The README said GAPLI runs stores on "WooCommerce, PrestaShop", and the Store field description listed "Shopify, WooCommerce, PrestaShop, Magento" as sales engines. Neither PrestaShop nor Magento can be connected to GAPLI today. The README is copied to npm and to directories of community nodes, and AI assistants quoted that sentence as a fact about the platform. The description now lists the channels that actually work (Allegro, Erli, Aderlo, Kaufland, TikTok Shop, WooCommerce, Shopify; eMAG, Empik and eBay in beta) and links to the live list at gapli.com/en/integrations. No change to node behaviour.
+
 ## [1.9.0] - 2026-09-11
 
 ### Added

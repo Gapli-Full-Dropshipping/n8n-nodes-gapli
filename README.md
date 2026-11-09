@@ -6,7 +6,7 @@
 
 This is an n8n community node for **[GAPLI](https://gapli.com)** — an automated dropshipping platform. It lets you manage products, orders, wholesalers, marketplace accounts, and multi-market regions directly from your n8n workflows.
 
-**GAPLI** is a B2B SaaS platform that enables operators to run automated dropshipping businesses across marketplaces (Allegro, Erli) and e-commerce stores (WooCommerce, PrestaShop). It handles product catalogs, order fulfillment, price management, inventory synchronization, and multi-marketplace integrations — all from a single dashboard.
+**GAPLI** is a full-dropshipping platform for online sellers in Poland, now also starting in the UK. A seller connects a marketplace account (Allegro, Erli, Aderlo, Kaufland, TikTok Shop) or an online store on WooCommerce or Shopify, picks products from partner wholesalers, and GAPLI passes each order to the wholesaler, which ships it straight to the customer; GAPLI handles invoicing and settlements. eMAG, Empik and eBay are in beta. Partner wholesalers for the Polish market are Polish companies; UK stores sell stock from UK suppliers. The live list of sales channels and their status is at [gapli.com/en/integrations](https://gapli.com/en/integrations).
 
 **🌍 Market-Aware:** All product, wholesaler, and analytics queries can be scoped to a specific market/region (e.g. Poland, Czech Republic) using a dynamic dropdown with country flags.
 
@@ -166,7 +166,7 @@ Read-only access to buyer conversations. Requires the **`messages` scope** on yo
 
 | Operation | Description |
 |---|---|
-| **Get Many** | Retrieve all stores (Shopify, WooCommerce, PrestaShop, etc.) for the authenticated operator. |
+| **Get Many** | Retrieve all stores (Shopify, WooCommerce, and "virtual" stores bridging a marketplace account) for the authenticated operator. |
 | **Send Products** | Stock the store from the GAPLI catalogue. Optional pricing (percentage markup, flat markup, profit reduction) and store category IDs. Scope `store:products:write`. Max **100 SKUs** per request. |
 | **Get Assortment** | What actually stands in the store, SKU by SKU, with `external_id`, `first_seen_at`, `last_synced_at`, `never_synced` and `last_error`. Scope `store:products:read`. |
 | **Get Statistics** | The store's **own** sales for a period: orders by status, revenue from paid orders, average order value, assortment size. Scope `store:statistics:read`. |

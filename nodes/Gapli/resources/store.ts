@@ -67,7 +67,7 @@ export const storeFields: INodeProperties[] = [
 		required: true,
 		default: 0,
 		description:
-			'The store to act on. Only stores with a real sales engine (Shopify, WooCommerce, PrestaShop, Magento) carry an assortment — a "virtual" store is a bridge to a marketplace account and is refused with HTTP 409. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+			'The store to act on. Only stores with a real sales engine (Shopify or WooCommerce) carry an assortment — a "virtual" store is a bridge to a marketplace account and is refused with HTTP 409. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 		displayOptions: {
 			show: {
 				resource: ['store'],
